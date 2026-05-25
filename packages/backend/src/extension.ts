@@ -192,6 +192,8 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   });
   extensionContext.subscriptions.push(trayMenu);
 
+  registerChaosProvider(extensionContext);
+
   console.log('Chaos Lab extension activated');
 }
 
