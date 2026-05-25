@@ -1,8 +1,8 @@
 {
-  "name": "helloworld",
-  "displayName": "Hello World",
-  "description": "Hello World extension",
-  "version": "0.0.1",
+  "name": "chaos-lab",
+  "displayName": "Chaos Lab",
+  "description": "Chaos engineering toolkit for Podman Desktop",
+  "version": "0.1.0",
   "icon": "icon.png",
   "publisher": "you",
   "license": "Apache-2.0",
@@ -39,7 +39,5 @@
     "vite": "8.0.5",
     "vitest": "^2.1.9"
   },
-  "dependencies": {
-    "semver": "^7.6.3"
-  }
+  "dependencies": {}
 }

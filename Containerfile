@@ -8,8 +8,8 @@ COPY README.md /extension/
 
 FROM scratch
 
-LABEL org.opencontainers.image.title="Your Hello World Extension" \
-        org.opencontainers.image.description="Hello World Extension" \
+LABEL org.opencontainers.image.title="Chaos Lab" \
+        org.opencontainers.image.description="Chaos engineering toolkit for Podman Desktop" \
         org.opencontainers.image.vendor="Your Org / Username" \
         io.podman-desktop.api.version=">= 1.12.0"
 
