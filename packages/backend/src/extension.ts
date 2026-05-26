@@ -181,18 +181,24 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
   registerChaosProvider(extensionContext);
 
-  const trayMenu = extensionApi.tray.registerMenuItem({
-    id: 'chaos-lab.tray',
-    type: 'submenu',
-    label: 'Chaos Lab',
-    submenu: [
-      { id: 'chaos-lab.openChaos', label: 'Open Dashboard' },
-      { id: 'chaos-lab.stopAll', label: 'Stop All Chaos' },
-    ],
-  });
-  extensionContext.subscriptions.push(trayMenu);
+  // ---------------------------------------------------------------------------
+  // #7: Register a tray menu
+  // Register a submenu in the system tray with:
+  //   - id: 'chaos-lab.tray'
+  //   - label: 'Chaos Lab'
+  //   - Two items: 'Open Dashboard' (id: 'chaos-lab.openChaos')
+  //               and 'Stop All Chaos' (id: 'chaos-lab.stopAll')
+  // Push the returned disposable to extensionContext.subscriptions.
+  // Hint: extensionApi.tray.registerMenuItem({ id, type: 'submenu', label, submenu: [...] })
+  // ---------------------------------------------------------------------------
 
-  registerChaosProvider(extensionContext);
+  // ---------------------------------------------------------------------------
+  // #8: Register the Chaos provider (connection creation)
+  // Call registerChaosProvider(extensionContext) to register a container provider
+  // that allows users to create, start, stop, and edit "Chaos machines"
+  // from the Podman Desktop Resources page.
+  // (The implementation lives in ./chaos-provider.ts — see TODOs #11–#13 there)
+  // ---------------------------------------------------------------------------
 
   console.log('Chaos Lab extension activated');
 }
