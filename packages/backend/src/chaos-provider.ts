@@ -57,22 +57,23 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   // Hint: extensionApi.commands.registerCommand(id, callback)
   // ---------------------------------------------------------------------------
 
-  // ---------------------------------------------------------------------------
-  // #10: Create a container provider
-  // Use extensionApi.provider.createProvider() to register a new provider with:
-  //   - id: 'chaos'
-  //   - name: 'Chaos'
-  //   - status: 'installed'
-  //   - version: '1.0.0'
-  //   - images: { icon: './icon.png', logo: { dark: './icon.png', light: './icon.png' } }
-  //   - emptyConnectionMarkdownDescription: a message shown when no machines exist
-  // Store the result in providerInstance.
-  // Push providerInstance to extensionContext.subscriptions for cleanup.
-  // Hint: extensionApi.provider.createProvider({ id, name, status, ... })
-  // ---------------------------------------------------------------------------
+  providerInstance = extensionApi.provider.createProvider({
+    id: 'chaos',
+    name: 'Chaos',
+    status: 'installed',
+    version: '1.0.0',
+    images: {
+      icon: './icon.png',
+      logo: { dark: './icon.png', light: './icon.png' },
+    },
+    emptyConnectionMarkdownDescription:
+      'No Chaos machines running. Click **Create** to spin up a new Chaos machine.',
+  });
+
+  extensionContext.subscriptions.push(providerInstance);
 
   // ---------------------------------------------------------------------------
-  // #11: Set up a connection factory for creating Chaos machines
+  // #12: Set up a connection factory for creating Chaos machines
   // Call providerInstance.setContainerProviderConnectionFactory() with:
   //   - creationDisplayName: 'Chaos Machine'
   //   - creationButtonTitle: 'Create Chaos Machine'
