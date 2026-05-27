@@ -72,20 +72,27 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
 
   extensionContext.subscriptions.push(providerInstance);
 
-  // ---------------------------------------------------------------------------
-  // #12: Set up a connection factory for creating Chaos machines
-  // Call providerInstance.setContainerProviderConnectionFactory() with:
-  //   - creationDisplayName: 'Chaos Machine'
-  //   - creationButtonTitle: 'Create Chaos Machine'
-  //   - create: async (params, logger, token) => { ... }
-  // In the create callback:
-  //   1. Read machine name from params['chaos.factory.machine.name']
-  //   2. Read cpus, memory, disk from params (convert bytes → MB/GB)
-  //   3. Call registerMachineConnection(machineName, config)
-  //   4. Update provider status to 'ready'
-  // Hint: providerInstance.setContainerProviderConnectionFactory({ ... })
-  // ---------------------------------------------------------------------------
+  providerInstance.setContainerProviderConnectionFactory({
+    creationDisplayName: 'Chaos Machine',
+    creationButtonTitle: 'Create Chaos Machine',
 
+    create: async (params, logger, _token) => {
+      const machineName = (params['chaos.factory.machine.name'] as string) || `chaos-${Date.now()}`;
+      const cpus = Number(params['chaos.factory.machine.cpus']) || DEFAULT_CONFIG.cpus;
+      const memoryBytes = Number(params['chaos.factory.machine.memory']) || DEFAULT_CONFIG.memoryMb * 1024 * 1024;
+      const diskBytes = Number(params['chaos.factory.machine.diskSize']) || DEFAULT_CONFIG.diskGb * 1024 * 1024 * 1024;
+
+      const memoryMb = Math.round(memoryBytes / (1024 * 1024));
+      const diskGb = Math.round(diskBytes / (1024 * 1024 * 1024));
+      const config: MachineConfig = { cpus, memoryMb, diskGb };
+
+      logger?.log(`Creating Chaos machine '${machineName}' (${cpus} CPUs, ${memoryMb} MB RAM, ${diskGb} GB disk)...`);
+
+      registerMachineConnection(machineName, config);
+      providerInstance?.updateStatus('ready');
+      logger?.log(`Chaos machine '${machineName}' created and running`);
+    },
+  });
 }
 
 function registerMachineConnection(machineName: string, config: MachineConfig): void {
