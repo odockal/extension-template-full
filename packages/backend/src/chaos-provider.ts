@@ -41,6 +41,23 @@ const DEFAULT_CONFIG: MachineConfig = {
 
 export function registerChaosProvider(extensionContext: extensionApi.ExtensionContext): void {
   // ---------------------------------------------------------------------------
+  // #14: Register onboarding command and set onboarding context
+  // Register a command 'chaos-lab.onboarding.checkProvider' that:
+  //   1. Checks if any machines exist (machines.size > 0)
+  //   2. Sets onboarding context value 'chaosProviderReady' to true or false
+  // Push the returned disposable to extensionContext.subscriptions.
+  //
+  // Then, in the connection factory create callback (#11), after a successful
+  // machine creation, set 'chaosProviderReady' = true.
+  // On failure, set 'chaosMachineCreationFailed' = true.
+  //
+  // The onboarding UI is defined declaratively in package.json (contributes.onboarding).
+  // Podman Desktop renders it automatically — your code just needs to set context values.
+  // Hint: extensionApi.context.setValue(key, value, 'onboarding')
+  // Hint: extensionApi.commands.registerCommand(id, callback)
+  // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
   // #10: Create a container provider
   // Use extensionApi.provider.createProvider() to register a new provider with:
   //   - id: 'chaos'

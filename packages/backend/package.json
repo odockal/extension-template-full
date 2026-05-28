@@ -15,6 +15,10 @@
       {
         "command": "chaos-lab.stopAll",
         "title": "Chaos Lab: Stop All Chaos"
+      },
+      {
+        "command": "chaos-lab.onboarding.checkProvider",
+        "title": "Chaos Lab: Check Provider Status"
       }
     ],
     "menus": {
@@ -99,6 +103,77 @@
           "description": "Disk size"
         }
       }
+    },
+    "onboarding": {
+      "title": "Chaos Lab Setup",
+      "enablement": "!onboardingContext:chaosProviderReady",
+      "steps": [
+        {
+          "id": "checkProviderCommand",
+          "label": "Check Provider",
+          "title": "Checking for Chaos provider",
+          "command": "chaos-lab.onboarding.checkProvider",
+          "completionEvents": [
+            "onCommand:chaos-lab.onboarding.checkProvider"
+          ]
+        },
+        {
+          "id": "welcomeView",
+          "label": "Setup",
+          "title": "Chaos Lab Setup",
+          "when": "!onboardingContext:chaosProviderReady",
+          "content": [
+            [
+              {
+                "value": "Chaos Lab needs a Chaos Machine to run chaos experiments against your containers."
+              }
+            ],
+            [
+              {
+                "value": "The next step will create a Chaos Machine using the provider's connection factory. You can customize CPU, memory, and disk settings.",
+                "highlight": true
+              }
+            ]
+          ]
+        },
+        {
+          "id": "createMachineView",
+          "label": "Create Machine",
+          "title": "Create a Chaos Machine",
+          "when": "!onboardingContext:chaosProviderReady",
+          "component": "createContainerProviderConnection",
+          "completionEvents": [
+            "onboardingContext:chaosProviderReady"
+          ]
+        },
+        {
+          "id": "createMachineFailure",
+          "title": "Failed creating Chaos Machine",
+          "when": "onboardingContext:chaosMachineCreationFailed",
+          "state": "failed",
+          "content": [
+            [
+              {
+                "value": "Failed to create the Chaos Machine. :button[Retry setup]{command=chaos-lab.onboarding.checkProvider}"
+              }
+            ]
+          ]
+        },
+        {
+          "id": "setupSuccess",
+          "title": "Chaos Lab is ready",
+          "when": "onboardingContext:chaosProviderReady",
+          "state": "completed",
+          "content": [
+            [
+              {
+                "value": "#### Chaos Lab is ready!\nYour Chaos Machine has been created. Open the **Chaos Lab Dashboard** to start running chaos experiments.\n\n:button[Open Dashboard]{command=chaos-lab.openChaos}",
+                "highlight": true
+              }
+            ]
+          ]
+        }
+      ]
     }
   },
   "scripts": {
