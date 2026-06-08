@@ -82,6 +82,7 @@ export class ChaosApiImpl implements ChaosApi {
     //   - title: 'Stop All Chaos'
     // Inside the callback, use progress.report({ message }) to show status,
     // then call this.engine.stopAll(), then report completion with increment: 100.
+    // Bonus: use increment (0–100) in progress.report() to show intermediate progress steps.
     // Hint: extensionApi.window.withProgress({ location, title }, async (progress) => { ... })
     // -------------------------------------------------------------------------
     await this.engine.stopAll();
