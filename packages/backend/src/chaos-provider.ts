@@ -41,7 +41,7 @@ const DEFAULT_CONFIG: MachineConfig = {
 
 export function registerChaosProvider(extensionContext: extensionApi.ExtensionContext): void {
   // ---------------------------------------------------------------------------
-  // #14: Register onboarding command and set onboarding context
+  // #13: Register onboarding command and set onboarding context
   // Register a command 'chaos-lab.onboarding.checkProvider' that:
   //   1. Checks if any machines exist (machines.size > 0)
   //   2. Sets onboarding context value 'chaosProviderReady' to true or false
@@ -85,15 +85,6 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   // Hint: providerInstance.setContainerProviderConnectionFactory({ ... })
   // ---------------------------------------------------------------------------
 
-  // ---------------------------------------------------------------------------
-  // #12: Show progress during machine creation
-  // Wrap the create callback body in extensionApi.window.withProgress():
-  //   - location: extensionApi.ProgressLocation.TASK_WIDGET
-  //   - title: `Creating Chaos Machine: ${machineName}`
-  // Use progress.report({ message, increment }) to show status steps.
-  // Check token?.isCancellationRequested between steps to allow cancellation.
-  // Hint: extensionApi.window.withProgress({ location, title }, async (progress) => { ... })
-  // ---------------------------------------------------------------------------
 }
 
 function registerMachineConnection(machineName: string, config: MachineConfig): void {
