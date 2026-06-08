@@ -50,6 +50,7 @@ Load the extension in Podman Desktop and start filling in the numbered TODOs. Ea
 | `workshop/11-connection-factory` | #11 | `setContainerProviderConnectionFactory` | `chaos-provider.ts` |
 | `workshop/12-progress-creation` | #12 | `withProgress` in connection factory | `chaos-provider.ts` |
 | `workshop/13-ci-workflows` | #13 | CI/CD: nightly + release image builds | `.github/workflows/` |
+| `workshop/14-onboarding` | #14 | `context.setValue` + onboarding workflow | `chaos-provider.ts` |
 | `dev_conf` | — | All TODOs completed (final) | — |
 
 ### Quick reference
