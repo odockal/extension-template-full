@@ -135,6 +135,8 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   // Register a command 'chaos-lab.openChaos' that calls panel.reveal()
   // to bring the webview panel to the foreground.
   // Push the returned disposable to extensionContext.subscriptions.
+  // Also add the command entry to package.json under contributes.commands:
+  //   { "command": "chaos-lab.openChaos", "title": "Chaos Lab: Open Dashboard" }
   // Hint: extensionApi.commands.registerCommand(id, callback)
   // ---------------------------------------------------------------------------
 
