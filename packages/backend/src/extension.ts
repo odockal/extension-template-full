@@ -172,7 +172,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   extensionContext.subscriptions.push(chaosCli);
 
   // ---------------------------------------------------------------------------
-  // #15: Register a CLI tool
+  // #14: Register a CLI tool
   // Use extensionApi.cli.createCliTool() to register a CLI tool with:
   //   - name: 'chaos-cli'
   //   - displayName: 'Chaos CLI'
