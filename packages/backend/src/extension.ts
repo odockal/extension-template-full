@@ -171,6 +171,19 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   });
   extensionContext.subscriptions.push(chaosCli);
 
+  // ---------------------------------------------------------------------------
+  // #15: Register a CLI tool
+  // Use extensionApi.cli.createCliTool() to register a CLI tool with:
+  //   - name: 'chaos-cli'
+  //   - displayName: 'Chaos CLI'
+  //   - markdownDescription: 'CLI for managing chaos experiments from the terminal'
+  //   - images: { icon: './icon.png' }
+  //   - version: '0.1.0'
+  //   - path: '/usr/local/bin/chaos-cli'
+  // Push the returned disposable to extensionContext.subscriptions.
+  // Hint: extensionApi.cli.createCliTool({ name, displayName, ... })
+  // ---------------------------------------------------------------------------
+
   registerChaosProvider(extensionContext);
 
   console.log('Chaos Lab extension activated');
