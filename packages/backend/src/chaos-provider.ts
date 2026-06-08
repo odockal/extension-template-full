@@ -62,7 +62,7 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   // Use extensionApi.provider.createProvider() to register a new provider with:
   //   - id: 'chaos'
   //   - name: 'Chaos'
-  //   - status: 'unknown'
+  //   - status: 'installed'
   //   - version: '1.0.0'
   //   - images: { icon: './icon.png', logo: { dark: './icon.png', light: './icon.png' } }
   //   - emptyConnectionMarkdownDescription: a message shown when no machines exist
