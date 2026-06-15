@@ -27,14 +27,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04]
+        os: [ubuntu-24.04]
     steps:
       - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v5
-        name: Install npm
-        with:
-          run_install: false
 
       - uses: actions/setup-node@v6
         with:
