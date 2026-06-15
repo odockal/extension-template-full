@@ -319,4 +319,93 @@ build-container:
 
 ## License
 
+<<<<<<< HEAD
 Apache License 2.0
+=======
+These files will be loaded from the extension.
+
+Optionally, you can also use `npm run watch` to continuously rebuild after each change, without needing to re-run `npm build`:
+
+```sh
+$ npm run watch
+```
+
+4. Load the extension within Podman Desktop:
+
+We will load the extension within Podman Desktop to test it. This requires Podman Desktop v1.17+
+
+1. Navigate to the settings and enable `Development Mode` for the `extensions`
+1. Click on the `extensions` nav item in the left navigation bar
+1. Go to the `Local extension` tab.
+1. Click on the 'Add a local folder...' button and select the path of the `packages/backend` folder of this extension and click OK.
+1. Now the extension is part of Podman Desktop and you can see it listed in the `installed` tab of the Extensions panel.
+
+
+5. Confirm that the extension has been loaded:
+
+You will now see a "Hello World" webview in the Podman Desktop navbar. You can also check the developer console for any logging information indicating that the extension has been loaded successfully.
+
+Example of extension loading:
+
+![loaded](/images/loaded.png)
+
+## Linter, Typecheck, and Formatter
+
+We include additional tools to assist in development, which can be found in the main `package.json` file.
+
+Formatter:
+```sh
+$ npm run format:fix
+```
+
+Linter:
+```sh
+$ npm run lint:fix
+```
+
+Typechecker:
+```sh
+$ npm run typecheck
+```
+
+## Packaging and Publishing
+
+More information on how to package and publish your extension can be found in our [official publishing documentation](https://podman-desktop.io/docs/extensions/publish).
+
+However, we have provided a pre-made Containerfile in this template for you to try.
+
+1. Package your extension by building the image:
+
+```sh
+$ podman build -t quay.io/myusername/myextension .
+```
+
+2. Push the extension to an external registry:
+
+```sh
+$ podman push quay.io/myusername/myextension
+```
+
+3. Install via the Podman Desktop "Install Custom..." button:
+
+![custom install](/images/custom_install.png)
+
+## Using Extension's image locally
+
+```sh
+# directly use Podman Desktop Home Configuration folder
+pluginsFolder=~/.local/share/containers/podman-desktop/plugins/
+# build the image using Containerfile
+podman build -t chaos-lab ./ -f ./Containerfile
+# create a container to access extension's file system
+CONTAINER_ID=$(podman create localhost/chaos-lab --entrypoint "")
+mkdir -p $pluginsFolder
+# store the image file system into archive and extract it into correct location
+podman export $CONTAINER_ID | tar -x -C $pluginsFolder
+# renaming for better readability
+mv $pluginsFolder/extension $pluginsFolder/chaoslab-extension
+# remove container and image
+podman rm -f $CONTAINER_ID
+podman rmi -f localhost/chaos-lab:latest
+```
+>>>>>>> 4016d95 (chore: update local Containerfile, README)
