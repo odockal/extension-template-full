@@ -1,92 +1,119 @@
-# Podman Desktop Extension Full Template
+# Chaos Lab - Podman Desktop Extension
 
-<p align="center">
-  <img alt="Hello World" src="/images/helloselkie.png" width="50%">
-</p>
+Chaos engineering toolkit for Podman Desktop. Inject faults, shape network traffic, limit resources, and isolate containers to test resilience.
 
-## Overview
+## Features
 
-This template provides a "full" example of creating an extension with a webview that utilizes multiple packages. Within this template, we use three separate packages to distinguish between the frontend, backend, and shared code that connects the frontend and backend.
-
-The "full" template is meant to showcase a full production example which includes multiple frontend and backend technologies such as TypeScript, Svelte and TailwindCSS.
-
-All backend-related code can be separated into its own package, which improves both security and code organization.
-
-The template offers flexibility in creating a Podman Desktop extension that can use the underlying Podman Desktop API and pre-built UI components via [@podman-desktop/ui-svelte](https://www.npmjs.com/package/@podman-desktop/ui-svelte).
-
-With this template, it's as easy as:
-* **Backend:** Write 100% TypeScript code.
-* **Frontend:** Use Svelte & pre-made UI components from Podman Desktop for rapid UI development.
-
-Tips for using this template:
-* Every section is heavily commented to aid understanding. Start with the `backend`, then move on to the `frontend`, and finally explore the `shared` package.
-* Adding a new function to connect the frontend and backend requires updates to both `packages/backend/src/api-impl.ts` and `packages/shared/src/HelloWorldApi.ts`.
-
-![hello world](/images/helloworld.png)
-![hello world notification](/images/helloworld_notification.png)
-
-## Tech Stack
-
-The tech stack for this extension template includes:
-
-* TypeScript
-* Svelte 5
-* TailwindCSS
-* npm
+- **Scenario Scheduler** – Create recurring chaos attacks (stop, kill, pause, restart) targeting random, specific, or all containers.
+- **Network Shaper** – Inject latency, packet loss, and bandwidth limits into running containers via `tc`.
+- **Resource Limiter** – Constrain CPU and memory on the fly with `podman update`.
+- **Container Isolator** – Pause containers, disconnect them from networks, or partition them from specific peers.
+- **Live Dashboard** – Real-time CPU, memory, network I/O, and block I/O metrics with time-series charts.
+- **Safe-list** – Protect critical containers (e.g. `postgres*`, `redis-prod`) from all chaos operations.
+- **Tray & Commands** – Quick access via tray menu and command palette (`Stop All Chaos`).
 
 ## Architecture
 
-The template is organized into three packages:
+| Package | Description |
+|---------|-------------|
+| `packages/backend` | Extension entry point, Podman API calls, chaos engine, settings |
+| `packages/frontend` | Svelte 5 + TailwindCSS dashboard with @podman-desktop/ui-svelte |
+| `packages/shared` | RPC types and message proxy connecting frontend ↔ backend |
 
-* `packages/frontend`: A Svelte/Tailwind-based frontend designed for easy integration with the Podman Desktop official [@podman-desktop/ui-svelte](https://www.npmjs.com/package/@podman-desktop/ui-svelte) package.
-* `packages/backend`: The backend code and central configuration area for the extension, managed within `package.json`.
-* `packages/shared`: Intermediary code that creates a connection between the frontend and backend via an RPC connection.
+## Workshop
 
-## Development
+This repository doubles as a hands-on workshop for learning the Podman Desktop Extension API. The `workshop/*` branches provide a progressive, step-by-step guide — each branch builds on the previous one by filling in one more TODO placeholder.
 
-To build and develop the extension, follow these steps:
-
-1. Clone the project or your fork:
-```sh
-$ git clone https://github.com/containers/podman-desktop-extension-template-webview/
-```
-
-2. Run `npm install` to install all relevant packages:
-```sh
-$ npm install
-```
-
-3. Create a build:
-
-Creating a build will generate all required files for Podman Desktop to load the extension:
+### Getting started
 
 ```sh
-$ npm run build
+git checkout workshop/01-progress-task   # skeleton with all TODOs
+npm install && npm run build
 ```
 
-In the `package.json` and `vite.config.js` files, we create a directory in `/packages/backend/media` that contains all the webview components. You will see output like the following:
+Load the extension in Podman Desktop and start filling in the numbered TODOs. Each branch is named after the task you'll implement there — the branch number matches the TODO number. Check your work against the next branch at any time.
+
+### Branch progression
+
+| Branch | TODO | API taught | File |
+|--------|------|-----------|------|
+| `workshop/01-progress-task` | #1 | `withProgress` | `chaos-api-impl.ts` |
+| `workshop/02-status-bar` | #2 | `createStatusBarItem` | `extension.ts` |
+| `workshop/03-status-bar-dynamic` | #3 | Dynamic status bar updates via `setInterval` | `extension.ts` |
+| `workshop/04-command-stop-all` | #4 | `commands.registerCommand`, `showInformationMessage` | `extension.ts` |
+| `workshop/05-command-open-dashboard` | #5 | Command + `panel.reveal()` | `extension.ts` |
+| `workshop/06-command-view-container` | #6 | Command + `webview.postMessage` | `extension.ts` |
+| `workshop/07-tray-menu` | #7 | `tray.registerMenuItem` with submenu | `extension.ts` |
+| `workshop/08-config-change-listener` | #8 | `onDidChangeConfiguration` | `settings-manager.ts` |
+| `workshop/09-config-read-values` | #9 | `configuration.getConfiguration` | `settings-manager.ts` |
+| `workshop/10-create-provider` | #10 | `provider.createProvider` | `chaos-provider.ts` |
+| `workshop/11-connection-factory` | #11 | `setContainerProviderConnectionFactory` | `chaos-provider.ts` |
+| `workshop/12-ci-workflows` | #12 | CI/CD: nightly + release image builds | `.github/workflows/` |
+| `workshop/13-onboarding` | #13 | `context.setValue` + onboarding workflow | `chaos-provider.ts` |
+| `workshop/14-cli-tool` | #14 | `cli.createCliTool` | `extension.ts` |
+| `dev_conf` | — | All TODOs completed (final) | — |
+
+### Quick reference
+
+Every workshop branch includes a `SKILL.md` file at the repo root with an API cheat sheet covering common patterns, code snippets, and links to documentation.
+
+## Development of the extension against production Podman Desktop (1.27.2)
+
+In the extension's root folder:
+```sh
+npm install
+npm run build    # or: npm run watch
+```
+
+Download Podman Desktop ([github podman-desktop releases](https://github.com/podman-desktop/podman-desktop/releases/tag/v1.27.2)) and install it.
+
+Load the extension in Podman Desktop (v1.17+):
+
+1. Start Podman Desktop
+2. Enable **Development Mode** in Settings → Extensions.
+3. Go to **Extensions → Local extension** tab.
+4. Click **Add a local folder…** and select `packages/backend`.
+
+## Extension development againts development version of Podman Desktop (nightly)
+
+Prerequisities: Nodejs v24.15.0, npm and pnpm!
+```sh
+npm install -g pnpm@10
+```
+
+Checkout the podman-desktop repository, install dependencies
 
 ```sh
-$ npm run build
-...
-[0] transforming...
-[0] ✓ 140 modules transformed.
-[0] rendering chunks...
-[0] ../backend/media/index.html                           0.48 kB
-[0] ../backend/media/fa-v4compatibility-BX8XWJtE.woff2    4.80 kB
-[0] ../backend/media/fa-v4compatibility-B9MWI-E6.ttf     10.84 kB
-[0] ../backend/media/fa-regular-400-DgEfZSYE.woff2       25.46 kB
-[0] ../backend/media/fa-regular-400-Bf3rG5Nx.ttf         67.98 kB
-[0] ../backend/media/fa-brands-400-O7nZalfM.woff2       118.07 kB
-[0] ../backend/media/fa-solid-900-DOQJEhcS.woff2        157.19 kB
-[0] ../backend/media/fa-brands-400-Dur5g48u.ttf         209.38 kB
-[0] ../backend/media/fa-solid-900-BV3CbEM2.ttf          423.68 kB
-[0] ../backend/media/index-ChFLTcUn.css                 116.79 kB
-[0] ../backend/media/index-B6Ge7rjZ.js                  125.62 kB │ map: 1,670.57 kB
-[0] ✓ built in 1.49s
-[0] npm run -w packages/frontend build exited with code 0
-✨  Done in 3.02s.
+git clone https://github.com/podman-desktop/podman-desktop.git
+cd podman-desktop
+pnpm install
 ```
+
+And run the podman-desktop in the watch mode with a link to extension's folder (so we can enable auto-reload)
+```sh
+# in podman-desktop root folder
+pnpm watch --extension-folder ~/git/extension-template-full/packages/backend/
+```
+
+Run the extension in the watch mode
+```sh
+cd extension-template-full
+npm install
+npm run watch
+```
+
+Enjoy auto-reload of the changes done on the extension's side in the running instance of the Podman Desktop.
+
+## Packaging
+
+```sh
+podman build -t quay.io/myusername/chaos-lab .
+podman push quay.io/myusername/chaos-lab
+```
+
+Install via Podman Desktop **Install Custom…** button.
+
+## License
 
 These files will be loaded from the extension.
 
@@ -155,3 +182,22 @@ $ podman push quay.io/myusername/myextension
 3. Install via the Podman Desktop "Install Custom..." button:
 
 ![custom install](/images/custom_install.png)
+
+## Using Extension's image locally
+
+```sh
+# directly use Podman Desktop Home Configuration folder
+pluginsFolder=~/.local/share/containers/podman-desktop/plugins/
+# build the image using Containerfile
+podman build -t chaos-lab ./ -f ./Containerfile
+# create a container to access extension's file system
+CONTAINER_ID=$(podman create localhost/chaos-lab --entrypoint "")
+mkdir -p $pluginsFolder
+# store the image file system into archive and extract it into correct location
+podman export $CONTAINER_ID | tar -x -C $pluginsFolder
+# renaming for better readability
+mv $pluginsFolder/extension $pluginsFolder/chaoslab-extension
+# remove container and image
+podman rm -f $CONTAINER_ID
+podman rmi -f localhost/chaos-lab:latest
+```
