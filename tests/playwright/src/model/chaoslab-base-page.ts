@@ -1,0 +1,42 @@
+/**********************************************************************
+ * Copyright (C) 2026 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ ***********************************************************************/
+
+import type { Locator, Page } from '@playwright/test';
+import { platform, arch } from 'node:os';
+import type { PageScreenshotOptions } from 'playwright-core';
+
+export abstract class ChaosLabBasePage {
+  readonly page: Page;
+  readonly webview: Page;
+  readonly heading: Locator;
+
+  protected constructor(page: Page, webview: Page, heading: string | undefined) {
+    this.page = page;
+    this.webview = webview;
+    this.heading = webview.getByRole('heading', { name: heading, exact: true }).first();
+  }
+
+  abstract waitForLoad(): Promise<void>;
+
+  public async screenshot(name: string, options?: PageScreenshotOptions): Promise<void> {
+    await this.webview.screenshot({
+      ...options,
+      path: `screenshots/${platform()}-${arch()}-${name}.png`,
+    });
+  }
+}
