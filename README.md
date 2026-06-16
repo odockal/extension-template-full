@@ -67,14 +67,26 @@ npm run build    # or: npm run watch
 
 Download Podman Desktop ([github podman-desktop releases](https://github.com/podman-desktop/podman-desktop/releases/tag/v1.27.2)) and install it.
 
-Load the extension in Podman Desktop (v1.17+):
+Load the extension within Podman Desktop:
 
-1. Start Podman Desktop
-2. Enable **Development Mode** in Settings → Extensions.
-3. Go to **Extensions → Local extension** tab.
-4. Click **Add a local folder…** and select `packages/backend`.
+We will load the extension within Podman Desktop to test it. This requires Podman Desktop v1.17+ installed locally.
 
-## Extension development againts development version of Podman Desktop (nightly)
+1. Navigate to the settings and enable `Development Mode` for the `extensions`
+2. Click on the `extensions` nav item in the left navigation bar
+3. Go to the `Local extension` tab.
+4. Click on the 'Add a local folder...' button and select the path of the `packages/backend` folder of this extension and click OK.
+5. Now the extension is part of Podman Desktop and you can see it listed in the `installed` tab of the Extensions panel.
+
+
+5. Confirm that the extension has been loaded:
+
+You will now see a "Hello World" or "ChaosLab" (depends on the branch/state of the repository) webview in the Podman Desktop navbar. You can also check the developer console for any logging information indicating that the extension has been loaded successfully.
+
+Example of extension loading:
+
+![loaded](/images/loaded.png)
+
+## Alternative Development method: Extension development againts development version of Podman Desktop (nightly) with Auto Reload
 
 Prerequisities: Nodejs v24.15.0, npm and pnpm!
 ```sh
@@ -104,45 +116,7 @@ npm run watch
 
 Enjoy auto-reload of the changes done on the extension's side in the running instance of the Podman Desktop.
 
-## Packaging
-
-```sh
-podman build -t quay.io/myusername/chaos-lab .
-podman push quay.io/myusername/chaos-lab
-```
-
-Install via Podman Desktop **Install Custom…** button.
-
-## License
-
-These files will be loaded from the extension.
-
-Optionally, you can also use `npm run watch` to continuously rebuild after each change, without needing to re-run `npm build`:
-
-```sh
-$ npm run watch
-```
-
-4. Load the extension within Podman Desktop:
-
-We will load the extension within Podman Desktop to test it. This requires Podman Desktop v1.17+
-
-1. Navigate to the settings and enable `Development Mode` for the `extensions`
-1. Click on the `extensions` nav item in the left navigation bar
-1. Go to the `Local extension` tab.
-1. Click on the 'Add a local folder...' button and select the path of the `packages/backend` folder of this extension and click OK.
-1. Now the extension is part of Podman Desktop and you can see it listed in the `installed` tab of the Extensions panel.
-
-
-5. Confirm that the extension has been loaded:
-
-You will now see a "Hello World" webview in the Podman Desktop navbar. You can also check the developer console for any logging information indicating that the extension has been loaded successfully.
-
-Example of extension loading:
-
-![loaded](/images/loaded.png)
-
-## Linter, Typecheck, and Formatter
+## Linter, Typecheck, Formatter and unit tests
 
 We include additional tools to assist in development, which can be found in the main `package.json` file.
 
@@ -161,38 +135,64 @@ Typechecker:
 $ npm run typecheck
 ```
 
-## Packaging and Publishing
-
-More information on how to package and publish your extension can be found in our [official publishing documentation](https://podman-desktop.io/docs/extensions/publish).
-
-However, we have provided a pre-made Containerfile in this template for you to try.
-
-1. Package your extension by building the image:
-
+Unit tests:
 ```sh
-$ podman build -t quay.io/myusername/myextension .
+$ npm run test
 ```
 
-2. Push the extension to an external registry:
+## Packaging the extension as an OCI image
 
-```sh
-$ podman push quay.io/myusername/myextension
+The multistage Containerfile for packaging the Podman Desktop extension as ac OCI image. The first stage is to prepare the builder image, where we copy the content of the extension and use image's prepared node/npm to install dependencies and build it.
+
+The second stage then copies the content of the extension from previous step into **scratch** image and so the result image contains only the necessary files and proper image metadata.
+
+```yaml
+FROM node:24-slim AS builder
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+COPY . /app
+WORKDIR /app
+RUN npm install
+RUN npm run build
+
+FROM scratch
+
+COPY --from=builder /app/packages/backend/dist/ /extension/dist
+COPY --from=builder /app/packages/backend/package.json /extension/
+COPY --from=builder /app/packages/backend/media/ /extension/media
+COPY --from=builder /app/LICENSE /extension/
+COPY --from=builder /app/packages/backend/icon.png /extension/
+COPY --from=builder /app/README.md /extension/
+
+LABEL org.opencontainers.image.title="Podman Desktop Chaos Lab Extension" \
+        org.opencontainers.image.description="Containers durability harness tool" \
+        org.opencontainers.image.vendor="DevConf Podman Desktop / Extension demo" \
+        io.podman-desktop.api.version=">= 1.22.0"
 ```
 
-3. Install via the Podman Desktop "Install Custom..." button:
-
-![custom install](/images/custom_install.png)
-
-## Using Extension's image locally
+Build the extension image
 
 ```sh
-# directly use Podman Desktop Home Configuration folder
+podman build -t chaos-lab .
+```
+
+## Using packed extension from OCI image in local Podman Desktop
+
+We can elevate the knowledge of the Podman Desktop internals to install the extension from the OCI image that exists locally for now. This is a great approach for catch possible build/deps problems we may have when developing the extension.
+
+We will use Podman Desktop Home configuration folder for the data, usually `~/.local/share/containers/podman-desktop/`, there is a `plugins` folder, it is a place where all external extensions are installed. So if we can get an extension's OCI image file system and copy it there, the extension would become available in the Podman Desktop.
+
+Note: the configuration settings exists under `~/.config/containers/podman-desktop/`.
+
+```sh
+# directly use Podman Desktop Home Data Configuration folder
 pluginsFolder=~/.local/share/containers/podman-desktop/plugins/
+mkdir -p $pluginsFolder
 # build the image using Containerfile
 podman build -t chaos-lab ./ -f ./Containerfile
 # create a container to access extension's file system
 CONTAINER_ID=$(podman create localhost/chaos-lab --entrypoint "")
-mkdir -p $pluginsFolder
 # store the image file system into archive and extract it into correct location
 podman export $CONTAINER_ID | tar -x -C $pluginsFolder
 # renaming for better readability
@@ -201,3 +201,115 @@ mv $pluginsFolder/extension $pluginsFolder/chaoslab-extension
 podman rm -f $CONTAINER_ID
 podman rmi -f localhost/chaos-lab:latest
 ```
+
+Now if we start Podman Desktop, we should see the Chaos Lab extension installed in the navigation bar.
+
+
+## Publishing from Local Machine
+
+More information on how to package and publish your extension can be found in our [official publishing documentation](https://podman-desktop.io/docs/extensions/publish).
+
+1. Package your extension by building the image using the Containerfile from extension's repository:
+
+```sh
+$ podman build -t quay.io/myusername/myextension .
+```
+
+2. Log into container registry (ie. quay.io)
+```sh
+podman login quay.io
+```
+
+3. Push the extension to an external registry:
+
+```sh
+$ podman push quay.io/myusername/myextension
+```
+
+4. Install via the Podman Desktop "Install Custom..." button, which uses URL tag of the OCI image repository: `quay.io/myusername/myextension` (format: `ghcr.io/my-org/custom-extension:v1.0`).
+
+![custom install](/images/custom_install.png)
+
+## Enabling the GitHub CI system to speed up changes feedback loop
+
+### Pull Request check workflow yaml file
+
+1. Standard event trigger definition for GH actions workflows:
+```yaml
+name: pr-check
+
+on: [pull_request]
+
+jobs:
+  ...
+```
+
+2. Install deps, build, lint, format and unit tests run
+
+```yaml
+jobs:
+  lint-format-unit:
+    name: linter, formatter, and tests / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Execute npm
+        run: npm install
+
+      - name: Run linter
+        run: npm run lint:check
+
+        # skip formatter on windows
+      - name: Run formatter
+        if: ${{ matrix.os=='ubuntu-22.04' }}
+        run: npm run format:check
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Run build
+        run: npm run build
+```
+
+3. Image builder step
+
+```yaml
+  # Dedicated step to build the chaos lab extension image
+  build-container:
+    name: Build Extension Image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build Image and Extract Files
+        id: build-image
+        run: |
+          podman build -t local_image ./
+          CONTAINER_ID=$(podman create localhost/local_image --entrypoint "")
+          mkdir -p output/plugins
+          podman export $CONTAINER_ID | tar -x -C output/plugins/
+          podman rm -f $CONTAINER_ID
+          podman rmi -f localhost/local_image:latest
+```
+
+### Build Next/CI for nightly extension OCI image on ghcr.io
+
+### E2E Tests on PR check
+
+## License
+
+Apache License 2.0
