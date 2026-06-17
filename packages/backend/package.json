@@ -2,12 +2,13 @@
   "name": "chaos-lab",
   "displayName": "Chaos Lab",
   "description": "Chaos engineering toolkit for Podman Desktop",
-  "version": "0.1.0",
+  "version": "1.4.0-next",
   "icon": "icon.png",
-  "publisher": "you",
-  "license": "Apache-2.0",
+  "publisher": "yourusername",
+  "private": true,
   "engines": {
-    "podman-desktop": ">=1.10.0"
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
   },
   "main": "./dist/extension.js",
   "contributes": {
