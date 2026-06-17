@@ -150,24 +150,18 @@ export class ChaosApiImpl implements ChaosApi {
 
     const pm = await this.detectPackageManager(containerId);
     if (!pm) {
-      throw new Error(
-        `Could not detect a package manager (apt-get, dnf, yum, apk, microdnf) in the container.`,
-      );
+      throw new Error(`Could not detect a package manager (apt-get, dnf, yum, apk, microdnf) in the container.`);
     }
 
     const pkg = this.resolvePackageName(tool, pm);
     const installCmd = this.buildInstallCommand(pm, pkg);
-    await extensionApi.process.exec('podman', [
-      'exec', containerId, 'sh', '-c', installCmd,
-    ]);
+    await extensionApi.process.exec('podman', ['exec', containerId, 'sh', '-c', installCmd]);
   }
 
   private async detectPackageManager(containerId: string): Promise<string | undefined> {
     for (const pm of ['apt-get', 'dnf', 'microdnf', 'yum', 'apk']) {
       try {
-        await extensionApi.process.exec('podman', [
-          'exec', containerId, 'sh', '-c', `command -v ${pm}`,
-        ]);
+        await extensionApi.process.exec('podman', ['exec', containerId, 'sh', '-c', `command -v ${pm}`]);
         return pm;
       } catch {
         // not found, try next
@@ -177,8 +171,7 @@ export class ChaosApiImpl implements ChaosApi {
   }
 
   private resolvePackageName(tool: string, pm: string): string {
-    const pmFamily = (pm === 'dnf' || pm === 'microdnf' || pm === 'yum') ? 'rpm' :
-                     (pm === 'apk') ? 'apk' : 'deb';
+    const pmFamily = pm === 'dnf' || pm === 'microdnf' || pm === 'yum' ? 'rpm' : pm === 'apk' ? 'apk' : 'deb';
     return TOOL_PACKAGES[tool]?.[pmFamily] ?? TOOL_PACKAGES[tool]?.deb ?? tool;
   }
 
@@ -200,6 +193,6 @@ export class ChaosApiImpl implements ChaosApi {
 }
 
 const TOOL_PACKAGES: Record<string, Record<string, string>> = {
-  tc:       { deb: 'iproute2', rpm: 'iproute-tc', apk: 'iproute2' },
-  iptables: { deb: 'iptables', rpm: 'iptables',   apk: 'iptables' },
+  tc: { deb: 'iproute2', rpm: 'iproute-tc', apk: 'iproute2' },
+  iptables: { deb: 'iptables', rpm: 'iptables', apk: 'iptables' },
 };

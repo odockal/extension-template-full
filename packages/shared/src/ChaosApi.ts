@@ -18,7 +18,14 @@
 
 import type { ContainerStats } from './ContainerTypes';
 
-export type AttackType = 'stop' | 'kill' | 'pause' | 'restart' | 'network-shape' | 'resource-limit' | 'network-disconnect';
+export type AttackType =
+  | 'stop'
+  | 'kill'
+  | 'pause'
+  | 'restart'
+  | 'network-shape'
+  | 'resource-limit'
+  | 'network-disconnect';
 
 export interface ScenarioStep {
   attackType: AttackType;
