@@ -16,7 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { Locator, Page, expect as playExpect } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
 import { ChaosLabBasePage } from 'src/model/chaoslab-base-page';
 import { ChaosLabDashboardPage } from 'src/model/chaoslab-dashboard-page';
 import { ChaosLabScenariosPage } from 'src/model/chaoslab-scenarios-page';
@@ -36,7 +37,7 @@ export class ChaosLabNavigationBar extends ChaosLabBasePage {
     this.scenariosButton = this.navigationBar.getByRole('link', { name: 'Scenarios', exact: true });
     this.networkShaperButton = this.navigationBar.getByRole('link', { name: 'Network Shaper', exact: true });
     this.resourceLimiterButton = this.navigationBar.getByRole('link', { name: 'Resource Limiter', exact: true });
-    this.containerIsolatorButton = this.navigationBar.getByRole('link', { name: 'Scenarios', exact: true });
+    this.containerIsolatorButton = this.navigationBar.getByRole('link', { name: 'Container Isolator', exact: true });
   }
 
   async waitForLoad(): Promise<void> {
