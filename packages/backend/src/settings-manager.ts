@@ -57,11 +57,8 @@ export class SettingsManager {
     const config = extensionApi.configuration.getConfiguration(CONFIG_SECTION);
 
     this.current = {
-      chaosSafeContainers: this.parseSafeContainers(
-        config.get<string>('chaosSafeContainers') ?? '',
-      ),
-      showStatusBarChaos:
-        config.get<boolean>('showStatusBarChaos') ?? DEFAULT_SETTINGS.showStatusBarChaos,
+      chaosSafeContainers: this.parseSafeContainers(config.get<string>('chaosSafeContainers') ?? ''),
+      showStatusBarChaos: config.get<boolean>('showStatusBarChaos') ?? DEFAULT_SETTINGS.showStatusBarChaos,
     };
   }
 

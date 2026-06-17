@@ -33,6 +33,7 @@ interface MachineEntry {
 let providerInstance: extensionApi.Provider | undefined;
 const machines: Map<string, MachineEntry> = new Map();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DEFAULT_CONFIG: MachineConfig = {
   cpus: 2,
   memoryMb: 2048,
@@ -66,8 +67,7 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
       icon: './icon.png',
       logo: { dark: './icon.png', light: './icon.png' },
     },
-    emptyConnectionMarkdownDescription:
-      'No Chaos machines running. Click **Create** to spin up a new Chaos machine.',
+    emptyConnectionMarkdownDescription: 'No Chaos machines running. Click **Create** to spin up a new Chaos machine.',
   });
 
   extensionContext.subscriptions.push(providerInstance);
@@ -85,9 +85,9 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   //   4. Update provider status to 'ready'
   // Hint: providerInstance.setContainerProviderConnectionFactory({ ... })
   // ---------------------------------------------------------------------------
-
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function registerMachineConnection(machineName: string, config: MachineConfig): void {
   const connectionDisposable = providerInstance!.registerContainerProviderConnection({
     name: machineName,
@@ -173,7 +173,9 @@ function registerMachineConnection(machineName: string, config: MachineConfig): 
           entry.status = 'started';
         }
 
-        log?.log(`Machine '${machineName}' updated: ${entry.config.cpus} CPUs, ${entry.config.memoryMb} MB RAM, ${entry.config.diskGb} GB disk`);
+        log?.log(
+          `Machine '${machineName}' updated: ${entry.config.cpus} CPUs, ${entry.config.memoryMb} MB RAM, ${entry.config.diskGb} GB disk`,
+        );
       },
     },
   });
