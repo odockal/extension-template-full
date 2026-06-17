@@ -72,7 +72,7 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   // Hint: extensionApi.provider.createProvider({ id, name, status, ... })
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
-  // #11: Set up a connection factory for creating Chaos machines
+  // #12: Set up a connection factory for creating Chaos machines
   // Call providerInstance.setContainerProviderConnectionFactory() with:
   //   - creationDisplayName: 'Chaos Machine'
   //   - creationButtonTitle: 'Create Chaos Machine'

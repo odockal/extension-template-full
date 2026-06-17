@@ -111,49 +111,70 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chaosStatusBar = undefined as any; // replace with real implementation
 
-  // ---------------------------------------------------------------------------
-  // #3: Dynamically update the status bar text
-  // Set up a setInterval (every 3 seconds) that reads chaosEngine.getState()
-  // and updates chaosStatusBar.text:
-  //   - When runningAttacks > 0 → "Chaos Lab (N active)"
-  //   - Otherwise → "Chaos Lab"
-  // Store the interval handle in statusBarUpdateInterval.
-  // Push a disposable to extensionContext.subscriptions that clears the interval.
-  // ---------------------------------------------------------------------------
+  statusBarUpdateInterval = setInterval(() => {
+    const state = chaosEngine?.getState();
+    if (state && state.runningAttacks > 0) {
+      chaosStatusBar.text = `Chaos Lab (${state.runningAttacks} active)`;
+    } else {
+      chaosStatusBar.text = 'Chaos Lab';
+    }
+  }, 3000);
+  extensionContext.subscriptions.push({
+    dispose: () => {
+      if (statusBarUpdateInterval) {
+        clearInterval(statusBarUpdateInterval);
+        statusBarUpdateInterval = undefined;
+      }
+    },
+  });
 
-  // ---------------------------------------------------------------------------
-  // #4: Register the "Stop All Chaos" command
-  // Register a command 'chaos-lab.stopAll' that:
-  //   1. Calls chaosApiImpl.stopAllChaos()
-  //   2. Shows a toast: 'All chaos operations have been stopped and rolled back.'
-  // Push the returned disposable to extensionContext.subscriptions.
-  // Hint: extensionApi.commands.registerCommand(id, callback)
-  // Hint: extensionApi.window.showInformationMessage(text)
-  // ---------------------------------------------------------------------------
+  const stopAllCommand = extensionApi.commands.registerCommand('chaos-lab.stopAll', async () => {
+    await chaosApiImpl.stopAllChaos();
+    await extensionApi.window.showInformationMessage('All chaos operations have been stopped and rolled back.');
+  });
+  extensionContext.subscriptions.push(stopAllCommand);
 
-  // ---------------------------------------------------------------------------
-  // #5: Register the "Open Dashboard" command
-  // Register a command 'chaos-lab.openChaos' that calls panel.reveal()
-  // to bring the webview panel to the foreground.
-  // Push the returned disposable to extensionContext.subscriptions.
-  // Also add the command entry to package.json under contributes.commands:
-  //   { "command": "chaos-lab.openChaos", "title": "Chaos Lab: Open Dashboard" }
-  // Hint: extensionApi.commands.registerCommand(id, callback)
-  // ---------------------------------------------------------------------------
+  const openChaosCommand = extensionApi.commands.registerCommand('chaos-lab.openChaos', () => {
+    panel.reveal();
+  });
+  extensionContext.subscriptions.push(openChaosCommand);
 
-  // ---------------------------------------------------------------------------
-  // #6: Register the "View Container" command with webview messaging
-  // Register a command 'chaos-lab.viewContainerUsage' that receives a container
-  // object ({ id?: string; Id?: string }) as its argument.
-  // The command should:
-  //   1. Extract the container ID (container?.id ?? container?.Id)
-  //   2. Call panel.reveal() to show the webview
-  //   3. Wait for the webview to become visible (e.g. setTimeout ~200ms)
-  //   4. Post a message to the webview: { type: 'navigate', url: `/chaos/container/${containerId}` }
-  // Push the returned disposable to extensionContext.subscriptions.
-  // Hint: panel.webview.postMessage(message)
-  // Hint: await new Promise(resolve => setTimeout(resolve, 200))
-  // ---------------------------------------------------------------------------
+  const viewContainerCommand = extensionApi.commands.registerCommand(
+    'chaos-lab.viewContainerUsage',
+    async (container: { id?: string; Id?: string }) => {
+      const containerId = container?.id ?? container?.Id;
+      panel.reveal();
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await panel.webview.postMessage({
+        type: 'navigate',
+        url: `/chaos/container/${containerId}`,
+      });
+    },
+  );
+  extensionContext.subscriptions.push(viewContainerCommand);
+
+  const trayItem = extensionApi.tray.registerMenuItem({
+    id: 'chaos-lab.tray',
+    type: 'submenu',
+    label: 'Chaos Lab',
+    submenu: [
+      { id: 'chaos-lab.openChaos', label: 'Open Dashboard', type: 'normal' },
+      { id: 'chaos-lab.stopAll', label: 'Stop All Chaos', type: 'normal' },
+    ],
+  });
+  extensionContext.subscriptions.push(trayItem);
+
+  const chaosCli = extensionApi.cli.createCliTool({
+    name: 'chaos-cli',
+    displayName: 'Chaos CLI',
+    markdownDescription: 'CLI for managing chaos experiments from the terminal',
+    images: { icon: './icon.png' },
+    version: '0.1.0',
+    path: '/usr/local/bin/chaos-cli',
+  });
+  extensionContext.subscriptions.push(chaosCli);
+
+  registerChaosProvider(extensionContext);
 
   // ---------------------------------------------------------------------------
   // #7: Register a tray menu
@@ -167,19 +188,12 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   // ---------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------
-  // #14: Register a CLI tool
-  // Use extensionApi.cli.createCliTool() to register a CLI tool with:
-  //   - name: 'chaos-cli'
-  //   - displayName: 'Chaos CLI'
-  //   - markdownDescription: 'CLI for managing chaos experiments from the terminal'
-  //   - images: { icon: './icon.png' }
-  //   - version: '0.1.0'
-  //   - path: '/usr/local/bin/chaos-cli'
-  // Push the returned disposable to extensionContext.subscriptions.
-  // Hint: extensionApi.cli.createCliTool({ name, displayName, ... })
+  // #8: Register the Chaos provider (connection creation)
+  // Call registerChaosProvider(extensionContext) to register a container provider
+  // that allows users to create, start, stop, and edit "Chaos machines"
+  // from the Podman Desktop Resources page.
+  // (The implementation lives in ./chaos-provider.ts — see TODOs #11–#13 there)
   // ---------------------------------------------------------------------------
-
-  registerChaosProvider(extensionContext);
 
   console.log('Chaos Lab extension activated');
 }
