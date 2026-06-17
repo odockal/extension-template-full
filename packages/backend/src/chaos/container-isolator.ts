@@ -29,12 +29,20 @@ export class ContainerIsolator {
     const joinedArgs = args.join(' ');
     try {
       await extensionApi.process.exec('podman', [
-        'exec', '--privileged', containerId, 'sh', '-c',
+        'exec',
+        '--privileged',
+        containerId,
+        'sh',
+        '-c',
         `PATH="$PATH:/sbin:/usr/sbin:/usr/local/sbin" iptables ${joinedArgs}`,
       ]);
     } catch {
       await extensionApi.process.exec('podman', [
-        'exec', '--privileged', containerId, 'sh', '-c',
+        'exec',
+        '--privileged',
+        containerId,
+        'sh',
+        '-c',
         `PATH="$PATH:/sbin:/usr/sbin:/usr/local/sbin" iptables-legacy ${joinedArgs}`,
       ]);
     }
@@ -43,9 +51,7 @@ export class ContainerIsolator {
   constructor(private readonly containerService: ContainerService) {}
 
   setSafePatterns(patterns: string[]): void {
-    this.safePatterns = patterns
-      .filter(Boolean)
-      .map(p => new RegExp('^' + p.replace(/\*/g, '.*') + '$', 'i'));
+    this.safePatterns = patterns.filter(Boolean).map(p => new RegExp('^' + p.replace(/\*/g, '.*') + '$', 'i'));
   }
 
   private isSafe(name: string): boolean {
@@ -92,12 +98,12 @@ export class ContainerIsolator {
           throw new Error('Network partition requires at least one peer container ID.');
         }
         const hasIptables =
-          await this.containerService.checkToolAvailability(rule.containerId, 'iptables') ||
-          await this.containerService.checkToolAvailability(rule.containerId, 'iptables-legacy');
+          (await this.containerService.checkToolAvailability(rule.containerId, 'iptables')) ||
+          (await this.containerService.checkToolAvailability(rule.containerId, 'iptables-legacy'));
         if (!hasIptables) {
           throw new Error(
             `Container ${rule.containerName} does not have iptables. ` +
-            'Network partition mode requires iptables inside the container.',
+              'Network partition mode requires iptables inside the container.',
           );
         }
         for (const peerId of rule.partitionPeers) {
@@ -115,7 +121,7 @@ export class ContainerIsolator {
 
     if (rule.autoRestoreAfterSec && rule.autoRestoreAfterSec > 0) {
       const timer = setTimeout(() => {
-        this.restore(rule.containerId).catch(err =>
+        this.restore(rule.containerId).catch((err: unknown) =>
           console.warn(`Auto-restore failed for ${rule.containerName}:`, err),
         );
       }, rule.autoRestoreAfterSec * 1000);
@@ -195,7 +201,10 @@ export class ContainerIsolator {
   private async getContainerIp(containerId: string): Promise<string | undefined> {
     try {
       const result = await extensionApi.process.exec('podman', [
-        'inspect', containerId, '--format', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}',
+        'inspect',
+        containerId,
+        '--format',
+        '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}',
       ]);
       const ip = result.stdout.trim();
       return ip || undefined;

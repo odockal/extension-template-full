@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  **********************************************************************/
 
-import * as extensionApi from '@podman-desktop/api';
+import type * as extensionApi from '@podman-desktop/api';
 
 interface MachineConfig {
   cpus: number;
@@ -33,13 +33,14 @@ interface MachineEntry {
 let providerInstance: extensionApi.Provider | undefined;
 const machines: Map<string, MachineEntry> = new Map();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DEFAULT_CONFIG: MachineConfig = {
   cpus: 2,
   memoryMb: 2048,
   diskGb: 20,
 };
 
-export function registerChaosProvider(extensionContext: extensionApi.ExtensionContext): void {
+export function registerChaosProvider(_extensionContext: extensionApi.ExtensionContext): void {
   // ---------------------------------------------------------------------------
   // #13: Register onboarding command and set onboarding context
   // Register a command 'chaos-lab.onboarding.checkProvider' that:
@@ -56,7 +57,6 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   // Hint: extensionApi.context.setValue(key, value, 'onboarding')
   // Hint: extensionApi.commands.registerCommand(id, callback)
   // ---------------------------------------------------------------------------
-
   // ---------------------------------------------------------------------------
   // #10: Create a container provider
   // Use extensionApi.provider.createProvider() to register a new provider with:
@@ -70,7 +70,6 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   // Push providerInstance to extensionContext.subscriptions for cleanup.
   // Hint: extensionApi.provider.createProvider({ id, name, status, ... })
   // ---------------------------------------------------------------------------
-
   // ---------------------------------------------------------------------------
   // #11: Set up a connection factory for creating Chaos machines
   // Call providerInstance.setContainerProviderConnectionFactory() with:
@@ -84,9 +83,9 @@ export function registerChaosProvider(extensionContext: extensionApi.ExtensionCo
   //   4. Update provider status to 'ready'
   // Hint: providerInstance.setContainerProviderConnectionFactory({ ... })
   // ---------------------------------------------------------------------------
-
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function registerMachineConnection(machineName: string, config: MachineConfig): void {
   const connectionDisposable = providerInstance!.registerContainerProviderConnection({
     name: machineName,
@@ -172,7 +171,9 @@ function registerMachineConnection(machineName: string, config: MachineConfig): 
           entry.status = 'started';
         }
 
-        log?.log(`Machine '${machineName}' updated: ${entry.config.cpus} CPUs, ${entry.config.memoryMb} MB RAM, ${entry.config.diskGb} GB disk`);
+        log?.log(
+          `Machine '${machineName}' updated: ${entry.config.cpus} CPUs, ${entry.config.memoryMb} MB RAM, ${entry.config.diskGb} GB disk`,
+        );
       },
     },
   });

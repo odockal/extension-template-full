@@ -108,6 +108,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   // Push it to extensionContext.subscriptions for proper disposal.
   // Hint: extensionApi.window.createStatusBarItem()
   // ---------------------------------------------------------------------------
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chaosStatusBar = undefined as any; // replace with real implementation
 
   // ---------------------------------------------------------------------------
