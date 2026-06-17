@@ -18,7 +18,6 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SettingsManager } from './settings-manager';
-import { DEFAULT_SETTINGS } from '/@shared/src/SettingsApi';
 
 const mockGet = vi.fn();
 const mockGetConfiguration = vi.fn();
