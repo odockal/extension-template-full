@@ -39,7 +39,7 @@ onDestroy(() => {
 <Route path="/*" breadcrumb="Chaos Lab" isAppMounted={isMounted} let:meta>
   <main class="flex flex-col w-screen h-screen overflow-hidden bg-[var(--pd-content-bg)]">
     <div class="flex flex-row w-full h-full overflow-hidden">
-      <Navigation {meta} />
+      <Navigation meta={meta} />
 
       <div class="flex flex-col w-full h-full overflow-hidden">
         <Route path="/" breadcrumb="Dashboard">
