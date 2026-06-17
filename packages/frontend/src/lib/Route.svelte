@@ -36,5 +36,5 @@ $: route.update({ path, redirect, firstmatch, breadcrumb });
 </script>
 
 {#if showContent}
-  <slot {params} {meta} />
+  <slot params={params} meta={meta} />
 {/if}
